@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link data-trunk rel="rust" data-wasm-opt="s" />
+		<title>Team Mavericks</title>
+		<link data-trunk rel="css" href="src/index.css"/>
+		<link data-trunk rel="copy-dir" href="images/"
+	</head>
+	<body>
+		<canvas id="background"></canvas>
+	</body>
+<script>
+	let points = [];
+	for (let i = 0; i < 50; i++) {
+		points.push({
+			r: 0.5 + Math.random(),
+			theta: (Math.random() - 0.5) * Math.PI * 2,
+			target_z: 5.0 + Math.random() * 3.0,
+			z: 5.0 + Math.random() * 3.0,
+			speed: 0.5 + Math.random() * 0.5,
+		})
+	}
+	let canvas = document.getElementById("background");
+	let context = canvas.getContext("2d");
+	context.moveTo(0, 0);
+	context.lineTo(500, 500);
+	context.stroke();
+	window.addEventListener("resize", () => {
+		context.canvas.width = window.innerWidth;
+		context.canvas.height = window.innerHeight;
+	});
+	let fps = 30;
+	setInterval(() => {
+		context.fillStyle = "white";
+		context.strokeStyle = "blue";
+		context.shadowBlur = 20;
+		context.shadowColor = "#ffffff";
+		context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+		context.beginPath();
+		for (const p of points) {
+			p.theta += p.speed / fps;
+			p.theta %= Math.PI * 2;
+			p.x = (p.r * Math.cos(p.theta) + 1) * context.canvas.width / 2;
+			p.y = (p.r * Math.sin(p.theta) + 1) * context.canvas.height / 2;
+			if ( p.z < 0.01) {
+				p.target_z = Math.abs(p.target_z);
+			}
+			if (Math.abs(p.z - p.target_z) < 0.01) {
+				p.target_z = -Math.abs(p.target_z);
+			}
+			if (p.z > p.target_z) {
+				p.z *= 0.9;
+			} else {
+				p.z *= 1.1;
+			}
+			context.moveTo(p.x, p.y);
+			context.ellipse(p.x, p.y, p.z, p.z, 0, 0, Math.PI * 2);
+		}
+		context.fill();
+
+	}, 1000/fps);
+	context.canvas.width = window.innerWidth;
+	context.canvas.height = window.innerHeight;
+	</script>
+</html>
